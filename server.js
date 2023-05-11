@@ -101,13 +101,13 @@ class HighScoreUtils {
 };
 
 app.get('/user', (req, res) => {
-    res.send({ users });
+    res.send(users);
 });
 
 app.get('/user/:id', (req, res) => {
-    let user = users.find( user => user.userName === req.params.id );
-    if (typeof user != undefined) {
-      res.send({user});
+    let user = users.find( user => user.username === req.params.id );
+    if (user) {
+      res.send({success: true, user: user});
     } else {
       res.status(400).json(HighScoreUtils.buildErrorResponse('USERNAME_NOT_FOUND','Jogador não encontrado'));
     }
