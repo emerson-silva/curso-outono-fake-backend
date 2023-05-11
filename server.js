@@ -1,11 +1,18 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');;
 
 const app = express();
 
+app.use(cors({
+  origin: '*'
+}));
+
+app.use(express.json());
+
 class User {
-  constructor(username) {
-    this.username = username;
+  constructor(userName) {
+    this.userName = userName;
   }
 };
 
@@ -29,11 +36,12 @@ class Game {
 };
 
 class HighScore {
-  constructor (username, gameId, score) {
+  //constructor (userName, gameId, score) {
+  constructor (userName, score) {
     this.id = uuidv4();
-    this.date = new Date().getTime();
-    this.username = username;
-    this.gameId = gameId;
+    //this.date = new Date().getTime();
+    this.userName = userName;
+    //this.gameId = gameId;
     this.score = score;
   }
 }
@@ -49,7 +57,22 @@ const games = [
 ];
 
 const highScores = [
-  new HighScore('emerson', marioWorld.id, '874551093')
+  new HighScore('anderson', '1030'),
+  new HighScore('julia', '999999040'),
+  new HighScore('joao', '9999040'),
+  new HighScore('luiz', '987'),
+  new HighScore('jojo', '200'),
+  new HighScore('nightblue', '200'),
+  new HighScore('cascao', '900'),
+  new HighScore('monica', '2103'),
+  new HighScore('cebolinha', '200'),
+  new HighScore('hunterXhunter', '8712393'),
+  new HighScore('ZamuraioX', '87451093'),
+  new HighScore('agente007', '4551093'),
+  new HighScore('mangojata', '9999999035'),
+  new HighScore('emerson', '156545'),
+  new HighScore('emerson', '200'),
+  new HighScore('emerson', '987')
 ];
 
 let loggedUser = null;
@@ -82,7 +105,7 @@ app.get('/user', (req, res) => {
 });
 
 app.get('/user/:id', (req, res) => {
-    let user = users.find( user => user.username === req.params.id );
+    let user = users.find( user => user.userName === req.params.id );
     if (typeof user != undefined) {
       res.send({user});
     } else {
@@ -91,20 +114,20 @@ app.get('/user/:id', (req, res) => {
 });
   
 app.post('/user', (req, res) => {
-  const { username } = req.body;
-  let user = users.find( user => user.username === id );
+  const { userName } = req.body;
+  let user = users.find( user => user.userName === id );
   if (typeof user != undefined) {
     res.status(400).json(
       HighScoreUtils.buildErrorResponse('USERNAME_ALREADY_EXIST','O nome de jogador já está em uso')
     );
   } else {
-    user = new User(username);
+    user = new User(userName);
     res.json({success: true, user: user});
   }
 });
 
 app.put('/user/:id', (req, res) => {
-  let user = users.find( user => user.username === req.params.id );
+  let user = users.find( user => user.userName === req.params.id );
   if (typeof user != undefined) {
     res.json({success: true, user: user});
   } else {
@@ -119,8 +142,8 @@ app.delete('/user', (req, res) => {
 });
 
 app.get('/user/login', (req, res) => {
-  const { username } = req.body;
-  let user = users.find( user => user.username === username );
+  const { userName } = req.body;
+  let user = users.find( user => user.userName === userName );
   if (typeof user != undefined) {
     res.send({success: true, user: user});
   } else {
@@ -176,12 +199,13 @@ app.delete('/games/:id', (req, res) => {
 
 // Endpoints para scores
 app.get('/scores', (req, res) => {
-  const { gameId } = req.body;
-  if (!gameId) {
-    res.json(scores);
-  } else {
-    res.json(HighScoreUtils.getTopScores(gameId, 5));
-  }
+  res.json(highScores);
+  // const { gameId } = req.body;
+  // if (!gameId) {
+  //   res.json(scores);
+  // } else {
+  //   res.json(HighScoreUtils.getTopScores(gameId, 5));
+  // }
 });
 
 app.get('/scores/:id', (req, res) => {
@@ -195,8 +219,9 @@ app.get('/scores/:id', (req, res) => {
 });
 
 app.post('/scores', (req, res) => {
-  const { username, gameId, score } = req.body;
-  const highScore = new HighScore ();
+//  const { userName, gameId, score } = req.body;
+  const { userName, score } = req.body;
+  const highScore = new HighScore (userName, score);
   highScores.push(highScore);
   res.json(highScore);
 });
